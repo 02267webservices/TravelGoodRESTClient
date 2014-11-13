@@ -2,8 +2,11 @@ package ws.dtu.rest.data;
 
 @javax.xml.bind.annotation.XmlRootElement()
 public class Hotel {
-    private String name;
+     private String name;
     private String id;
+    
+    public Hotel(){
+    }
 
     public String getName() {
         return name;
@@ -19,5 +22,11 @@ public class Hotel {
 
     public void setId(String id) {
         this.id = id;
+    }
+    
+    @Override
+    public String toString(){
+        
+        return "The name is " + name + " and the id is "+ id;
     }
 }
