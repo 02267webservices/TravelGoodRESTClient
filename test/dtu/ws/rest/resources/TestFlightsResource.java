@@ -23,11 +23,19 @@ public class TestFlightsResource {
      public void getFlights(){
         
          FlightInfoListType res = r.get(new GenericType<FlightInfoListType>(){});
-         System.out.println("Here is a list of flights: " +res.getFlightInformation().get(0).getFlightBookingNumber());
-
-        
-       
+      List<FlightInfoType> flightsInfo = res.getFlightInformation();
          
+          if (!flightsInfo.isEmpty()){
+            for (int i = 0; i < flightsInfo.size(); i++) {
+		System.out.println(flightsInfo.get(i).getFlightReservationService()+ "\n" +
+                           flightsInfo.get(i).getFlightBookingNumber()+ "\n" +
+                           Double.toString(flightsInfo.get(i).getFlightPrice()) + "\n" +
+                           flightsInfo.get(i).getFlightInfo().getCarrierName() + "\n" +
+                           flightsInfo.get(i).getFlightInfo().getDestinationAirport() + "\n" +
+                           flightsInfo.get(i).getFlightInfo().getStartAirport());
+            }
+            
      }
 
+}
 }
