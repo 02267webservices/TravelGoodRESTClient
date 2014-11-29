@@ -8,7 +8,9 @@ import dtu.ws.group8.lameduck.client.*;
 import hotelreservationservices.HotelType;
 import hotelreservationservices.HotelsType;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.datatype.DatatypeFactory;
@@ -17,6 +19,7 @@ import static org.junit.Assert.assertEquals;
 
 
 import org.junit.Test;
+import ws.dtu.rest.data.MyBean;
 /**
  *
  * @author emilhein
@@ -52,8 +55,8 @@ public class TestFlightResource {
          
      Client client = Client.create();
 
-      //Get list of flights   
-     
+      //Get list of flights   *****************
+   
      List<FlightInfoType> flightsInfo = getFlights(client, "Copenhagen", "Berlin", "2015-01-01");
          
           if (!flightsInfo.isEmpty()){
@@ -66,18 +69,107 @@ public class TestFlightResource {
                            flightsInfo.get(i).getFlightInfo().getStartAirport()+ "\n");
             }       
      }
+     //***********************************************************
+          
+     //**************ADD TO ITINERARY**************************     
+         addFlightsToItinerary(client,"ABC1234");
+         addhotelsToItinerary(client, "2");
+         addFlightsToItinerary(client,"ABC4321");
+         addFlightsToItinerary(client,"DEF5678");
+         addhotelsToItinerary(client, "5");
+      //************************GET ITINERARY************************
+         MyBean bean = getItinerary(client);
       
-         addFlightsToItinerary("ABC1234");
-         addFlightsToItinerary("ABC4321");
-  
-         bookItinerary(client);
+         Map<String, String> fligts = bean.getFligtList();
+         Map<String, String> hotels = bean.getHotelList();
+
+         for (Map.Entry pairs : fligts.entrySet()) {
+             System.out.println(pairs.getKey() + ":     " + pairs.getValue());
+         } 
+         for (Map.Entry pairs : hotels.entrySet()) {
+             System.out.println(pairs.getKey() + ":     " + pairs.getValue());
+         } 
+         
+         //**********************BOOK ITINERARY****************
+         
+         bookItinerary(client, bean);
 
          
+         //************************GET ITINERARY****************
+         System.out.println();
+         MyBean tee = getItinerary(client);
+         fligts = tee.getFligtList();
+         hotels = tee.getHotelList();
+
+         for (Map.Entry pairs : fligts.entrySet()) {
+             System.out.println(pairs.getKey() + ":     " + pairs.getValue());
+         } 
+         for (Map.Entry pairs : hotels.entrySet()) {
+             System.out.println(pairs.getKey() + ":     " + pairs.getValue());
+         } 
+         
+     }  
         
-       // HotelsType hotelsHolder = getHotels(client);
+     
+     @Test
+     public void P2(){
+         
+     Client client = Client.create();
+      List<FlightInfoType> flightsInfo = getFlights(client, "Copenhagen", "Berlin", "2015-01-01");
+         
+          if (!flightsInfo.isEmpty()){
+            for (int i = 0; i < flightsInfo.size(); i++) {
+		System.out.println(flightsInfo.get(i).getFlightReservationService()+ "\nFlightNumber: " +
+                           flightsInfo.get(i).getFlightBookingNumber()+ "\nPrice: " +
+                           Double.toString(flightsInfo.get(i).getFlightPrice()) + "\nCompany: " +
+                           flightsInfo.get(i).getFlightInfo().getCarrierName() + "\nDestination: " +
+                           flightsInfo.get(i).getFlightInfo().getDestinationAirport() + "\nFrom: " +
+                           flightsInfo.get(i).getFlightInfo().getStartAirport()+ "\n");
+            }       
+     }
+     //****************Adding flight to itinerary********************
+              addFlightsToItinerary(client,"ABC1234");
+              System.out.println(cancelPlannig(client));
+              
+               MyBean tee = getItinerary(client);
+               Map<String, String> fligts = tee.getFligtList();
+               Map<String, String> hotels = tee.getHotelList();
+
+         for (Map.Entry pairs : fligts.entrySet()) {
+             System.out.println(pairs.getKey() + ":     " + pairs.getValue());
+         } 
+         for (Map.Entry pairs : hotels.entrySet()) {
+             System.out.println(pairs.getKey() + ":     " + pairs.getValue());
+         } 
+         
+              
+     }
+     
+     /*
+         ///***********************CANCEL ITINERARY*****************
+         
+         cancelItinerary(client, bean);
+         
+         //*****************************GET ITINERARY***************
+         System.out.println();
+         MyBean ss = getItinerary(client);
+         fligts = ss.getFligtList();
+         hotels = ss.getHotelList();
+
+         for (Map.Entry pairs : fligts.entrySet()) {
+             System.out.println(pairs.getKey() + ":     " + pairs.getValue());
+         } 
+         for (Map.Entry pairs : hotels.entrySet()) {
+             System.out.println(pairs.getKey() + ":     " + pairs.getValue());
+         } 
+        */
+         
+       //  cancelFlight(client, "ABC1234");
+      /*  
+        HotelsType hotelsHolder = getHotels(client);
           
           
-      /*    
+          
            if (!hotelsHolder.getHotels().isEmpty()){
                 for (int i = 0; i < hotelsHolder.getHotels().size(); i++) {
                     System.out.println(hotelsHolder.getHotels().get(i).getName()+ "\n" +
@@ -85,51 +177,69 @@ public class TestFlightResource {
                            hotelsHolder.getHotels().get(i).getBookingNumber());
                 }
             }
-        */ 
+         */
          
-          
-          
-       //  addFlightsToItinerary("ABC12dd34");
-        
+     
 
   
+     //   bookHotel(client, "2"); ///2 is the number that will try connection to fastmoney
+     //   cancelHotel(client, "2");
          
-         bookHotel(client, "3");
-      
    
-       
-         /*
-         ///test cancel 
-         String cancel1 = r.queryParam("bookingnumber","ABC1234").delete(String.class);
-         System.out.println("True cancelling of booking number was succesfull: " +cancel1);
-         assertEquals("true",cancel1);
-         
-          ///test cancel 
-         String cancel2 = r.queryParam("bookingnumber","ABC1234").delete(String.class);
-         System.out.println("True cancelling of booking number was succesfull: " +cancel2);
-         assertEquals("false",cancel2);
-         */
+      
     
-     }
+     //}
      
-  public  ArrayList<String> getItinerary() {
-            
-      return itine;
+  public  MyBean getItinerary(Client client) {
+        WebResource r = client.resource(ITINERARY_URI); 
+        MyBean bean = r.path("getitinerary").get(MyBean.class);
+      return bean;
     }
   
-public void bookItinerary(Client client){
-   CreditCardInfoType cardInfo = getCardInfo("50408825","Thor-Jensen Claus","2009-05-05");
+  public  String cancelItinerary(Client client, MyBean itinerary) {
+         Map<String, String> flights = itinerary.getFligtList();
+         Map<String, String> hotels = itinerary.getHotelList();
 
-         for(int i = 0;i<itine.size();i++){
-             System.out.println(itine.get(i).toString());
-             String result = bookFlight(client, itine.get(i).toString(),cardInfo);
-             assertEquals("true", result);
-         }
+        for (Map.Entry pairs : flights.entrySet()) {
+            cancelFlight(client, pairs.getKey().toString());
+        }   
+        for (Map.Entry pairs : hotels.entrySet()) {
+            cancelHotel(client, pairs.getKey().toString());
+        }     
+        
+        return "Success";
+    }
+  
+  public void bookItinerary(Client client, MyBean itinerary){
+   CreditCardInfoType cardInfo = getCardInfo("50408825","Thor-Jensen Claus","2009-05-05");
+   Map<String, String> rari = itinerary.getFligtList();
+   Map<String, String> hotels = itinerary.getHotelList();
+
+        for (Map.Entry pairs : rari.entrySet()) {
+            bookFlight(client, pairs.getKey().toString(),cardInfo);
+        }     
+         for (Map.Entry pairs : hotels.entrySet()) {
+            bookHotel(client, pairs.getKey().toString());
+        }  
+
 }
      
-  public void addFlightsToItinerary(String number){
-    itine.add(number);
+  public String addFlightsToItinerary(Client client ,String number){
+      WebResource r = client.resource(ITINERARY_URI); 
+      String res = r.path("addflight").queryParam("bookingnumber",number).put(String.class);
+
+     return res;
 }
+  public String addhotelsToItinerary(Client client ,String number){
+      WebResource r = client.resource(ITINERARY_URI); 
+      String res = r.path("addhotel").queryParam("bookingnumber",number).put(String.class);
+
+     return res;
+}
+  
+  
+  
+  //***Here comes the 6 main methods you can call on the two SOAP services *********/
   
   public List<FlightInfoType> getFlights(Client client, String from, String to, String date){
      WebResource r = client.resource(ITINERARY_URI); 
@@ -141,7 +251,7 @@ public void bookItinerary(Client client){
       return flightsInfo;
   }
  
-    public HotelsType getHotels(Client client) {
+  public HotelsType getHotels(Client client) {
       WebResource r = client.resource(ITINERARY_URI);   
       HotelsType res = r.path("hotels").get(new GenericType<HotelsType>(){});
       
@@ -149,6 +259,7 @@ public void bookItinerary(Client client){
       
       return res;
   }
+  
   
   public String bookFlight(Client client, String number, CreditCardInfoType test){
       
@@ -163,20 +274,42 @@ public void bookItinerary(Client client){
 
       WebResource r = client.resource(ITINERARY_URI);
       String ans = r.queryParams(queryParams).get(String.class);
-      System.out.println(ans);
+     // System.out.println(ans);
       return ans;
   }
      
-  
-   public String bookHotel(Client client, String number){
+  public String bookHotel(Client client, String number){
       WebResource r = client.resource(ITINERARY_URI);
       String ans = r.path("hotel").queryParam("bookingnumber",number).put(String.class);
-      System.out.println(ans);
+    //  System.out.println("The booking of hotel "+number+" was: "+ ans);
       return ans;
    }
 
+  public String cancelFlight (Client client, String number){
+      WebResource r = client.resource(ITINERARY_URI);
+      
+      String cancel = r.path("flight").queryParam("bookingnumber",number).delete(String.class);
+      System.out.println("cancelling of booking number"+ number + "was succesfull: " +cancel);
+         
+      return cancel;
+  }
   
-   private CreditCardInfoType getCardInfo(String cardnumber, String name, String expdate) {
+  public String cancelPlannig(Client client){
+      WebResource r = client.resource(ITINERARY_URI);
+      String response = r.path("deleteitinerary").delete(String.class);
+      return response;
+  }
+  
+  public String cancelHotel (Client client, String number){
+      WebResource r = client.resource(ITINERARY_URI);
+      
+      String cancel = r.path("hotel").queryParam("bookingnumber",number).delete(String.class);
+      System.out.println("True cancelling of booking number "+ number + " was: " +cancel);
+         
+      return cancel;
+  }
+  
+  private CreditCardInfoType getCardInfo(String cardnumber, String name, String expdate) {
         CreditCardInfoType cardInfo = new CreditCardInfoType();
        // cardInfo.setCardNumber("50408825");
        // cardInfo.setName("Thor-Jensen Claus");
